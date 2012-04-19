@@ -38,7 +38,7 @@ describe VCAP::Concurrency::AtomicVar do
       barrier = VCAP::Concurrency::AtomicVar.new(0)
 
       # We're using the atomic var as a form of synchronization here. Each
-      # thread will count half the values up to 6, waiting for for the other
+      # thread will count half the values up to 6, waiting for the other
       # thread before proceeding.
       total = 6
       t = Thread.new { count_to(0, total, barrier) }
