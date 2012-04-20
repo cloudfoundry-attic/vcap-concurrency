@@ -2,11 +2,12 @@
 require File.expand_path("../lib/vcap/concurrency/version", __FILE__)
 
 Gem::Specification.new do |gem|
-  gem.authors       = ["mpage"]
-  gem.email         = ["mpage@rbcon.com"]
-  gem.description   = %q{TODO: Write a gem description}
-  gem.summary       = %q{TODO: Write a gem summary}
-  gem.homepage      = ""
+  gem.authors       = ["VMware"]
+  gem.email         = ["support@vmware.com"]
+  gem.description   = "Provides utility classes to support common patterns" \
+                      + " in concurrent programming."
+  gem.summary       = %q{Concurrency related utility classes}
+  gem.homepage      = "http://www.cloudfoundry.org"
 
   gem.files         = `git ls-files`.split($\)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
