@@ -37,27 +37,20 @@ describe VCAP::Concurrency::AtomicVar do
     it "should block if the current value is the same" do
       barrier = VCAP::Concurrency::AtomicVar.new(0)
 
-      # We're using the atomic var as a form of synchronization here. Each
-      # thread will count half the values up to 6, waiting for the other
-      # thread before proceeding.
-      total = 6
-      t = Thread.new { count_to(0, total, barrier) }
+      # We're using the atomic var as a form of synchronization here.
+      t = Thread.new do
+        barrier.wait_value_changed(0)
 
-      count_to(-1, total, barrier)
+        barrier.mutate { |v| v + 1 }
+      end
+
+      cur_val = barrier.mutate { |v| v + 1 }
+
+      barrier.wait_value_changed(cur_val)
 
       t.join
+
+      barrier.value.should == 2
     end
-  end
-
-  def count_to(start, total, barrier)
-    cur_val = start
-    while (cur_val = barrier.wait_value_changed(cur_val)) < total
-      barrier.mutate { |v| v + 1 }
-    end
-
-    # Allow the last counter to proceed
-    barrier.mutate { |v| v + 1 }
-
-    cur_val
   end
 end
