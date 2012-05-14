@@ -1,5 +1,7 @@
 require "thread"
 
+require "vcap/concurrency/errors"
+
 module VCAP
   module Concurrency
   end
@@ -62,10 +64,22 @@ class VCAP::Concurrency::Promise
   # NB: If the promise failed to be fulfilled, the error that occurred while
   #     fulfilling it will be raised here.
   #
+  # @param [Integer] timeout_secs  If supplied, wait for no longer than this
+  # value before proceeding. An exception will be raised if the promise hasn't
+  # been fulfilled when the timeout occurs.
+  #
+  # @raise [VCAP::Concurrency::TimeoutError]  Raised if the promise hasn't been
+  # fulfilled after +timeout_secs+ seconds since calling resolve().
+  #
   # @return [Object]  The result of the associated computation.
-  def resolve
+  def resolve(timeout_secs = nil)
     @lock.synchronize do
-      @cond.wait(@lock) unless @done
+      @cond.wait(@lock, timeout_secs) unless @done
+
+      if !@done
+        emsg = "Timed out waiting on result after #{timeout_secs}s."
+        raise VCAP::Concurrency::TimeoutError.new(emsg)
+      end
 
       if @error
         raise @error
